@@ -22,7 +22,7 @@ app.use(async (ctx, next) => {
 //TEMPLATING ENGINE
 render(app, {
   root: path.join(__dirname, 'views'),
-  layout: false,
+  layout: 'layout/page',
   viewExt: 'ejs',
   cache: false,
   debug: false
@@ -45,8 +45,23 @@ router.get('/', async (ctx)=>{
   await ctx.render('home')
 })
 
-router.post('/postroute', async (ctx)=>{
-  console.log(`Body received --> ${ctx.request.body}`)
+router.get('/register', async (ctx)=>{
+  await ctx.render('register')
+})
+
+router.post('/register', async (ctx)=>{
+  console.log(`Received POST '/register'. Body -->`)
+  console.dir(ctx.request.body)
+  ctx.redirect('/')
+})
+
+router.get('/login', async (ctx)=>{
+  await ctx.render('login')
+})
+
+router.post('/login', async (ctx)=>{
+  console.log(`Received POST '/login'. Body -->`)
+  console.dir(ctx.request.body)
   ctx.redirect('/')
 })
 
