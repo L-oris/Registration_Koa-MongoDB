@@ -2,7 +2,8 @@ const Koa = require('koa'),
       Router = require('koa-router'),
       bodyParser = require('koa-body'),
       render = require('koa-ejs'),
-      path = require('path')
+      path = require('path'),
+      mongoose = require('mongoose')
 
 const app = new Koa()
 
@@ -17,6 +18,12 @@ app.use(async (ctx, next) => {
     ctx.app.emit('error', err, ctx)
   }
 })
+
+
+//MONGO DB
+mongoose.connect('mongodb://localhost:27017/koa-auth', { useMongoClient: true })
+const db = mongoose.connection
+db.on('error', console.error.bind(console, 'connection error:'))
 
 
 //TEMPLATING ENGINE
