@@ -4,6 +4,19 @@ const Koa = require('koa'),
 
 const app = new Koa()
 
+
+//error handling
+app.use(async (ctx, next) => {
+  try {
+    await next()
+  } catch (err) {
+    ctx.status = err.status || 500
+    ctx.body = err.message
+    ctx.app.emit('error', err, ctx)
+  }
+})
+
+
 //MIDDLEWARES
 app.use(bodyParser())
 
