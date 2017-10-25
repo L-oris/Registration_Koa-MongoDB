@@ -25,6 +25,8 @@ mongoose.connect('mongodb://localhost:27017/koa-auth', { useMongoClient: true })
 const db = mongoose.connection
 db.on('error', console.error.bind(console, 'connection error:'))
 
+const User = require('./models/user')
+
 
 //TEMPLATING ENGINE
 render(app, {
@@ -48,7 +50,6 @@ app.use(require('koa-static-server')({
 const router = new Router()
 
 router.get('/', async (ctx)=>{
-  // ctx.body = "Hello There"
   await ctx.render('home')
 })
 

@@ -9,6 +9,7 @@
   "author": "Loris",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "koa": "^2.3.0",
     "koa-body": "^2.5.0",
     "koa-ejs": "^4.1.0",
