@@ -60,7 +60,6 @@ app.use(require('koa-static-server')({
 const router = new Router()
 
 router.get('/', async (ctx)=>{
-  console.log(`Session --> ${ctx.session.example}`)
   await ctx.render('home')
 })
 
@@ -69,7 +68,8 @@ router.get('/register', async (ctx)=>{
 })
 
 router.post('/register', async (ctx,next)=>{
-
+  console.log('body -->');
+  console.log(ctx.request.body);
   const {first,last,email,password,confirmPassword} = ctx.request.body
   if(first && last && email && password && confirmPassword){
 
@@ -87,9 +87,10 @@ router.post('/register', async (ctx,next)=>{
       if(err){
         throw new Error('Issues saving user into DB')
       }
-      ctx.redirect('/')
+
+      ctx.session.user = user
+      ctx.redirect('/secret')
     })
-    console.log('User successfully created!')
 
   } else {
     const err = new Error('All fields are required')
@@ -105,6 +106,24 @@ router.get('/login', async (ctx)=>{
 router.post('/login', async (ctx)=>{
   console.log(`Received POST '/login'. Body -->`)
   console.dir(ctx.request.body)
+  ctx.redirect('/')
+})
+
+router.get('/secret', async ctx =>{
+  if(!ctx.session.user){
+    const err = new Error('You are not authorized to see this page')
+    err.status = 403
+    throw err
+  }
+
+  const {first,last,email} = ctx.session.user
+  await ctx.render('secret', {
+    first, last, email
+  })
+})
+
+router.get('/logout', async ctx =>{
+  ctx.session.user = null
   ctx.redirect('/')
 })
 
