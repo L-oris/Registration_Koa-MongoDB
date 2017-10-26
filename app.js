@@ -75,18 +75,17 @@ router.post('/register', async (ctx,next)=>{
   }
 
   //all fields fulfilled, create instance of User and save into DB
-  const userData = {
-    first,last,email,password
-  }
+  try {
 
-  await User.create(userData, (err,user)=>{
-    if(err){
-      throw 'Issues saving user into DB'
-    }
-
+    const user = await User.create({
+      first, last, email, password
+    })
     ctx.session.user = user
     ctx.redirect('/secret')
-  })
+
+  } catch(err){
+    throw 'Issues saving user into DB'
+  }
 })
 
 
@@ -103,13 +102,16 @@ router.post('/login', async (ctx)=>{
   }
 
   try {
+
     const user = await User.authenticate(email, password)
     ctx.session.user = user
+
     await ctx.render('secret',{
       first: user.first,
       last: user.last,
       email: user.email
     })
+
   } catch(err){
     throw err
   }
