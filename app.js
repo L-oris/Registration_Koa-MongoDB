@@ -63,53 +63,66 @@ router.get('/', async (ctx)=>{
   await ctx.render('home')
 })
 
+
 router.get('/register', async (ctx)=>{
   await ctx.render('register')
 })
 
+
 router.post('/register', async (ctx,next)=>{
-  console.log('body -->');
-  console.log(ctx.request.body);
+
   const {first,last,email,password,confirmPassword} = ctx.request.body
-  if(first && last && email && password && confirmPassword){
-
-    if(password !== confirmPassword){
-      const err = new Error('Passwords do not match')
-      err.status = 500
-      throw err
-    }
-
-    //all fields fulfilled, create instance of User and save into DB
-    const userData = {
-      first,last,email,password
-    }
-    await User.create(userData, (err,user)=>{
-      if(err){
-        throw new Error('Issues saving user into DB')
-      }
-
-      ctx.session.user = user
-      ctx.redirect('/secret')
-    })
-
-  } else {
-    const err = new Error('All fields are required')
+  if(!(first && last && email && password && confirmPassword) && !(password !== confirmPassword)){
+    const err = new Error('All fields are required. Passwords must match')
     err.status = 403
     throw err
   }
+
+  //all fields fulfilled, create instance of User and save into DB
+  const userData = {
+    first,last,email,password
+  }
+
+  await User.create(userData, (err,user)=>{
+    if(err){
+      throw new Error('Issues saving user into DB')
+    }
+
+    ctx.session.user = user
+    ctx.redirect('/secret')
+  })
 })
+
 
 router.get('/login', async (ctx)=>{
   await ctx.render('login')
 })
 
+
 router.post('/login', async (ctx)=>{
-  console.log(`Received POST '/login'. Body -->`)
-  console.dir(ctx.request.body)
-  ctx.redirect('/')
+
+  const {email,password} = ctx.request.body
+  if(!(email && password)){
+    const err = new Error('All fields are required')
+    err.status = 403
+    throw err
+  }
+
+  try {
+    const user = await User.authenticate(email, password)
+    ctx.session.user = user
+    await ctx.render('secret',{
+      first: user.first,
+      last: user.last,
+      email: user.email
+    })
+  } catch(err){
+    throw err
+  }
 })
 
-router.get('/secret', async ctx =>{
+
+router.get('/secret', async (ctx)=>{
   if(!ctx.session.user){
     const err = new Error('You are not authorized to see this page')
     err.status = 403
@@ -122,14 +135,17 @@ router.get('/secret', async ctx =>{
   })
 })
 
-router.get('/logout', async ctx =>{
+
+router.get('/logout', async (ctx)=>{
   ctx.session.user = null
   ctx.redirect('/')
 })
 
+
 //apply router
 app.use(router.routes())
    .use(router.allowedMethods())
+
 
 
 app.listen(8080)

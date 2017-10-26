@@ -26,6 +26,33 @@ const UserSchema = new mongoose.Schema({
 })
 
 
+UserSchema.statics.authenticate = function(email,password,callback){
+  return new Promise(function(resolve,reject){
+
+    User.findOne({email})
+    .exec(function(err,user){
+
+      if(err){
+        return reject(err)
+      } else if(!user){
+        const err = new Error('User not found')
+        err.status = 401
+        return reject(err)
+      } else if(password !== user.password){
+        const err = new Error('Password is not correct')
+        err.status = 401
+        return reject(err)
+      }
+
+      resolve({
+        first: user.first,
+        last: user.last,
+        email: user.email
+      })
+    })
+  })
+}
+
 //create a User model
 const User = mongoose.model('User', UserSchema)
 
