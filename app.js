@@ -12,7 +12,7 @@ const app = new Koa()
 app.use(async (ctx, next) => {
   try {
     await next()
-  } catch (err) {
+  } catch (err){
     ctx.status = err.status || 500
     ctx.body = err.message
     ctx.app.emit('error', err, ctx)
@@ -57,10 +57,34 @@ router.get('/register', async (ctx)=>{
   await ctx.render('register')
 })
 
-router.post('/register', async (ctx)=>{
-  console.log(`Received POST '/register'. Body -->`)
-  console.dir(ctx.request.body)
-  ctx.redirect('/')
+router.post('/register', async (ctx,next)=>{
+
+  const {first,last,email,password,confirmPassword} = ctx.request.body
+  if(first && last && email && password && confirmPassword){
+
+    if(password !== confirmPassword){
+      const err = new Error('Passwords do not match')
+      err.status = 500
+      throw err
+    }
+
+    //all fields fulfilled, create instance of User and save into DB
+    const userData = {
+      first,last,email,password
+    }
+    await User.create(userData, (err,user)=>{
+      if(err){
+        throw new Error('Issues saving user into DB')
+      }
+      ctx.redirect('/')
+    })
+    console.log('User successfully created!')
+
+  } else {
+    const err = new Error('All fields are required')
+    err.status = 403
+    throw err
+  }
 })
 
 router.get('/login', async (ctx)=>{
