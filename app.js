@@ -3,7 +3,8 @@ const Koa = require('koa'),
       bodyParser = require('koa-body'),
       render = require('koa-ejs'),
       path = require('path'),
-      mongoose = require('mongoose')
+      mongoose = require('mongoose'),
+      session = require('koa-session')
 
 const app = new Koa()
 
@@ -39,6 +40,13 @@ render(app, {
 
 //MIDDLEWARES
 app.use(bodyParser())
+app.keys = ['mySecretPasswordHere']
+app.use(session(app))
+//generate fake session
+app.use(async (ctx,next) => {
+  ctx.session.example = 'My custom session here'
+  await next()
+})
 
 //SERVE STATIC FILES
 app.use(require('koa-static-server')({
@@ -46,10 +54,13 @@ app.use(require('koa-static-server')({
   rootPath: '/static'
 }))
 
+
+
 //ROUTER
 const router = new Router()
 
 router.get('/', async (ctx)=>{
+  console.log(`Session --> ${ctx.session.example}`)
   await ctx.render('home')
 })
 
