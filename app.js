@@ -38,15 +38,12 @@ render(app, {
   debug: false
 })
 
+
 //MIDDLEWARES
 app.use(bodyParser())
 app.keys = ['mySecretPasswordHere']
 app.use(session(app))
-//generate fake session
-app.use(async (ctx,next) => {
-  ctx.session.example = 'My custom session here'
-  await next()
-})
+
 
 //SERVE STATIC FILES
 app.use(require('koa-static-server')({
@@ -72,10 +69,9 @@ router.get('/register', async (ctx)=>{
 router.post('/register', async (ctx,next)=>{
 
   const {first,last,email,password,confirmPassword} = ctx.request.body
+
   if(!(first && last && email && password && confirmPassword) && !(password !== confirmPassword)){
-    const err = new Error('All fields are required. Passwords must match')
-    err.status = 403
-    throw err
+    throw 'All fields are required. Passwords must match'
   }
 
   //all fields fulfilled, create instance of User and save into DB
@@ -85,7 +81,7 @@ router.post('/register', async (ctx,next)=>{
 
   await User.create(userData, (err,user)=>{
     if(err){
-      throw new Error('Issues saving user into DB')
+      throw 'Issues saving user into DB'
     }
 
     ctx.session.user = user
@@ -103,9 +99,7 @@ router.post('/login', async (ctx)=>{
 
   const {email,password} = ctx.request.body
   if(!(email && password)){
-    const err = new Error('All fields are required')
-    err.status = 403
-    throw err
+    throw 'All fields are required'
   }
 
   try {
@@ -124,9 +118,7 @@ router.post('/login', async (ctx)=>{
 
 router.get('/secret', async (ctx)=>{
   if(!ctx.session.user){
-    const err = new Error('You are not authorized to see this page')
-    err.status = 403
-    throw err
+    throw 'You are not authorized to see this page'
   }
 
   const {first,last,email} = ctx.session.user

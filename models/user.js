@@ -1,4 +1,5 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose'),
+      {promisify} = require('util')
 
 //create a schema for data that we wanna store
 const UserSchema = new mongoose.Schema({
@@ -27,29 +28,21 @@ const UserSchema = new mongoose.Schema({
 
 
 UserSchema.statics.authenticate = function(email,password,callback){
-  return new Promise(function(resolve,reject){
 
-    User.findOne({email})
-    .exec(function(err,user){
+  return User.findOne({email})
+  .then(function(user){
 
-      if(err){
-        return reject(err)
-      } else if(!user){
-        const err = new Error('User not found')
-        err.status = 401
-        return reject(err)
-      } else if(password !== user.password){
-        const err = new Error('Password is not correct')
-        err.status = 401
-        return reject(err)
-      }
+    if(!user){
+      throw 'User not found'
+    } else if(password !== user.password){
+      throw 'Password is not correct'
+    }
 
-      resolve({
-        first: user.first,
-        last: user.last,
-        email: user.email
-      })
-    })
+    return {
+      first: user.first,
+      last: user.last,
+      email: user.email
+    }
   })
 }
 
