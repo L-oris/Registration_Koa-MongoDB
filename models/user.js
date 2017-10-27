@@ -1,5 +1,5 @@
 const mongoose = require('mongoose'),
-      {promisify} = require('util')
+      bcrypt = require('bcrypt')
 
 //create a schema for data that we wanna store
 const UserSchema = new mongoose.Schema({
@@ -24,6 +24,23 @@ const UserSchema = new mongoose.Schema({
     required: true,
     trim: true
   }
+})
+
+
+//hash password before saving into database
+UserSchema.pre('save', function(next){
+
+  const user = this
+  bcrypt.hash(user.password, 10, function(err, hash){
+
+    if(err){
+      return next(err)
+    }
+
+    //override cleartext password with hashed one
+    user.password = hash
+    next()
+  })
 })
 
 
