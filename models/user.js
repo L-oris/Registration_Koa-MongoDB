@@ -44,15 +44,15 @@ UserSchema.pre('save', function(next){
 })
 
 
-UserSchema.statics.authenticate = function(email,password,callback){
+UserSchema.statics.authenticate = async function(email,password,callback){
 
-  return User.findOne({email})
-  .then(function(user){
+  try {
 
-    if(!user){
-      throw 'User not found'
-    } else if(password !== user.password){
-      throw 'Password is not correct'
+    const user = await User.findOne({email})
+    const isValidPassword = await bcrypt.compare(password,user.password)
+
+    if(!isValidPassword){
+      throw `Password is not correct`
     }
 
     return {
@@ -60,7 +60,10 @@ UserSchema.statics.authenticate = function(email,password,callback){
       last: user.last,
       email: user.email
     }
-  })
+
+  } catch(err){
+    throw `User not found`
+  }
 }
 
 //create a User model

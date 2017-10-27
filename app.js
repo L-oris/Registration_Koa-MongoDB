@@ -104,8 +104,8 @@ router.post('/login', async (ctx)=>{
   try {
 
     const user = await User.authenticate(email, password)
-    ctx.session.user = user
 
+    ctx.session.user = user
     await ctx.render('secret',{
       first: user.first,
       last: user.last,
