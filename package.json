@@ -12,6 +12,7 @@
     "bcrypt": "^1.0.3",
     "koa": "^2.3.0",
     "koa-body": "^2.5.0",
+    "koa-csrf": "^3.0.6",
     "koa-ejs": "^4.1.0",
     "koa-router": "^7.2.1",
     "koa-session": "^5.5.0",

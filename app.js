@@ -4,7 +4,8 @@ const Koa = require('koa'),
       render = require('koa-ejs'),
       path = require('path'),
       mongoose = require('mongoose'),
-      session = require('koa-session')
+      session = require('koa-session'),
+      CSRF = require('koa-csrf')
 
 const app = new Koa()
 
@@ -46,6 +47,16 @@ app.use(bodyParser())
 app.keys = ['mySecretPasswordHere']
 app.use(session(app))
 
+app.use(new CSRF({
+  invalidSessionSecretMessage: 'Invalid session secret',
+  invalidSessionSecretStatusCode: 403,
+  invalidTokenMessage: 'Invalid CSRF token',
+  invalidTokenStatusCode: 403,
+  excludedMethods: [ 'GET', 'HEAD', 'OPTIONS' ],
+  disableQuery: false
+}))
+
+
 
 //SERVE STATIC FILES
 app.use(require('koa-static-server')({
@@ -64,7 +75,9 @@ router.get('/', async (ctx)=>{
 
 
 router.get('/register', async (ctx)=>{
-  await ctx.render('register')
+  await ctx.render('register', {
+    csrfToken: ctx.csrf
+  })
 })
 
 
@@ -72,8 +85,12 @@ router.post('/register', async (ctx,next)=>{
 
   const {first,last,email,password,confirmPassword} = ctx.request.body
 
-  if(!(first && last && email && password && confirmPassword) && !(password !== confirmPassword)){
-    throw 'All fields are required. Passwords must match'
+  if(!(first && last && email && password && confirmPassword)){
+    throw 'All fields are required'
+  }
+
+  if(password !== confirmPassword){
+    throw 'Passwords must match'
   }
 
   //all fields fulfilled, create instance of User and save into DB
@@ -86,13 +103,15 @@ router.post('/register', async (ctx,next)=>{
     ctx.redirect('/secret')
 
   } catch(err){
-    throw 'Issues saving user into DB'
+    throw 'Error creating new user. Please try again'
   }
 })
 
 
 router.get('/login', async (ctx)=>{
-  await ctx.render('login')
+  await ctx.render('login', {
+    csrfToken: ctx.csrf
+  })
 })
 
 

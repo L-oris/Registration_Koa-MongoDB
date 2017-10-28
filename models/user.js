@@ -46,9 +46,8 @@ UserSchema.pre('save', function(next){
 
 UserSchema.statics.authenticate = async function(email,password,callback){
 
-  try {
-
     const user = await User.findOne({email})
+
     if(!user){
       throw `User not found`
     }
@@ -63,10 +62,6 @@ UserSchema.statics.authenticate = async function(email,password,callback){
       last: user.last,
       email: user.email
     }
-
-  } catch(err){
-    throw `Error getting user from Database`
-  }
 }
 
 //create a User model
