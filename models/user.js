@@ -49,8 +49,11 @@ UserSchema.statics.authenticate = async function(email,password,callback){
   try {
 
     const user = await User.findOne({email})
-    const isValidPassword = await bcrypt.compare(password,user.password)
+    if(!user){
+      throw `User not found`
+    }
 
+    const isValidPassword = await bcrypt.compare(password,user.password)
     if(!isValidPassword){
       throw `Password is not correct`
     }
@@ -62,7 +65,7 @@ UserSchema.statics.authenticate = async function(email,password,callback){
     }
 
   } catch(err){
-    throw `User not found`
+    throw `Error getting user from Database`
   }
 }
 

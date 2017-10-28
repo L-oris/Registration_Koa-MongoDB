@@ -14,9 +14,11 @@ app.use(async (ctx, next) => {
   try {
     await next()
   } catch (err){
+    console.log(`Koa Error --> ${err}`);
     ctx.status = err.status || 500
-    ctx.body = err.message
-    ctx.app.emit('error', err, ctx)
+    await ctx.render('error',{
+      message: err
+    })
   }
 })
 
