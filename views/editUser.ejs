@@ -1,0 +1,29 @@
+<h2>Modify your credentials here!</h2>
+
+<form action="" method="post">
+
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+  <div class="field">
+    <label for="field--first">First</label>
+    <input type="text" name="first" value="<%= first %>" id="field--first">
+  </div>
+
+  <div class="field">
+    <label for="field--last">Last</label>
+    <input type="text" name="last" value="<%= last %>" id="field--last">
+  </div>
+
+  <div class="field">
+    <label for="field--age">Age</label>
+    <input type="number" name="age" value="<%= age %>" min="18" range="1" placeholder="23" id="field--age">
+  </div>
+
+  <div class="field">
+    <label for="field--city">City</label>
+    <input type="text" name="city" value="<%= city %>" id="field--city">
+  </div>
+
+  <button type="submit">Update</button>
+
+</form>

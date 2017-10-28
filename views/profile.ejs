@@ -3,4 +3,16 @@
 <h3>Name: <%= first %> <%= last %></h3>
 <h3>Email: <%= email %></h3>
 
+<% if(age){ %>
+  <h5>Age: <%= age %></h5>
+<% } %>
+
+<% if(city){ %>
+  <h5>City: <%= city %></h5>
+<% } %>
+
+
+<a href="/edit">Edit your credentials</a>
+
+
 <a href="/logout">Logout</a>

@@ -81,7 +81,7 @@ router.get('/register', async (ctx)=>{
 })
 
 
-router.post('/register', async (ctx,next)=>{
+router.post('/register', async (ctx)=>{
 
   const {first,last,email,password,confirmPassword} = ctx.request.body
 
@@ -103,7 +103,9 @@ router.post('/register', async (ctx,next)=>{
     ctx.session.user = {
       first: user.first,
       last: user.last,
-      email: user.email
+      email: user.email,
+      age: user.age,
+      city: user.city
     }
     ctx.redirect('/profile')
 
@@ -131,11 +133,7 @@ router.post('/login', async (ctx)=>{
 
     const user = await User.authenticate(email, password)
 
-    ctx.session.user = {
-      first: user.first,
-      last: user.last,
-      email: user.email
-    }
+    ctx.session.user = user
     ctx.redirect('/profile')
 
   } catch(err){
@@ -149,10 +147,40 @@ router.get('/profile', async (ctx)=>{
     throw 'You are not authorized to see this page'
   }
 
-  const {first,last,email} = ctx.session.user
+  const {first,last,email,age,city} = ctx.session.user
   await ctx.render('profile', {
-    first, last, email
+    first, last, email, age, city
   })
+})
+
+
+router.get('/edit', async (ctx)=>{
+  if(!ctx.session.user){
+    throw 'You are not authorized to see this page'
+  }
+
+  const {first,last,email,age,city} = ctx.session.user
+  await ctx.render('editUser', {
+    first, last, email, age, city,
+    csrfToken: ctx.csrf
+  })
+})
+
+
+router.post('/edit', async (ctx)=>{
+
+  const {first,last,age,city} = ctx.request.body
+  const {email} = ctx.session.user
+
+  //const newUser = await User.edit({first,last,email,age,city})
+  await User.update({email},{
+    first,last,age,city
+  })
+
+  ctx.session.user = {
+    first,last,email,age,city
+  }
+  ctx.redirect('/profile')
 })
 
 
