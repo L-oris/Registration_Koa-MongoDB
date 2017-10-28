@@ -99,8 +99,13 @@ router.post('/register', async (ctx,next)=>{
     const user = await User.create({
       first, last, email, password
     })
-    ctx.session.user = user
-    ctx.redirect('/secret')
+
+    ctx.session.user = {
+      first: user.first,
+      last: user.last,
+      email: user.email
+    }
+    ctx.redirect('/profile')
 
   } catch(err){
     throw 'Error creating new user. Please try again'
@@ -126,12 +131,12 @@ router.post('/login', async (ctx)=>{
 
     const user = await User.authenticate(email, password)
 
-    ctx.session.user = user
-    await ctx.render('secret',{
+    ctx.session.user = {
       first: user.first,
       last: user.last,
       email: user.email
-    })
+    }
+    ctx.redirect('/profile')
 
   } catch(err){
     throw err
@@ -139,13 +144,13 @@ router.post('/login', async (ctx)=>{
 })
 
 
-router.get('/secret', async (ctx)=>{
+router.get('/profile', async (ctx)=>{
   if(!ctx.session.user){
     throw 'You are not authorized to see this page'
   }
 
   const {first,last,email} = ctx.session.user
-  await ctx.render('secret', {
+  await ctx.render('profile', {
     first, last, email
   })
 })
