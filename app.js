@@ -4,6 +4,7 @@ const Koa = require('koa'),
       render = require('koa-ejs'),
       path = require('path'),
       mongoose = require('mongoose'),
+      sanitize = require('mongo-sanitize'),
       session = require('koa-session'),
       CSRF = require('koa-csrf')
 
@@ -111,9 +112,9 @@ router.post('/register', async (ctx)=>{
   //all fields fulfilled, create instance of User and save into DB
   try {
 
-    const user = await User.create({
+    const user = await User.create(sanitize({
       first, last, email, password
-    })
+    }))
 
     ctx.session.user = {
       first: user.first,
@@ -151,7 +152,7 @@ router.post('/login', async (ctx)=>{
 
   try {
 
-    const user = await User.authenticate(email, password)
+    const user = await User.authenticate(sanitize({email, password}))
 
     ctx.session.user = user
     ctx.redirect('/profile')
@@ -194,11 +195,9 @@ router.post('/edit', async (ctx)=>{
     throw 'First and Last name are required'
   }
 
-
-  //const newUser = await User.edit({first,last,email,age,city})
-  await User.update({email},{
+  await User.update({email},sanitize({
     first,last,age,city
-  })
+  }))
 
   ctx.session.user = {
     first,last,email,age,city
@@ -226,7 +225,7 @@ router.post('/delete', async (ctx)=>{
   try {
 
     //check if correct password provided
-    const user = await User.authenticate(email, password)
+    const user = await User.authenticate(sanitize({email, password}))
 
     //if no errors happened --> user correctly authenticate so proceed deleting from database
     await User.remove({email: user.email})

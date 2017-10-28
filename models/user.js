@@ -52,7 +52,7 @@ UserSchema.pre('save', function(next){
 })
 
 
-UserSchema.statics.authenticate = async function(email,password){
+UserSchema.statics.authenticate = async function({email,password}){
 
     const user = await User.findOne({email})
 
