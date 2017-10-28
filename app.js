@@ -57,7 +57,6 @@ app.use(new CSRF({
 }))
 
 
-
 //SERVE STATIC FILES
 app.use(require('koa-static-server')({
   rootDir: 'static',
@@ -65,13 +64,25 @@ app.use(require('koa-static-server')({
 }))
 
 
+//redirect non-registered users to GET'/register' if they're accessing private pages; also redirect registered users to GET'/profile' if they're trying to access registration-login pages
+app.use(async (ctx,next)=>{
+
+  const publicUrls = ['/register','/login']
+
+  if(!publicUrls.includes(ctx.request.url) && !ctx.session.user){
+    return ctx.redirect('/register')
+
+  } else if(publicUrls.includes(ctx.request.url) && ctx.session.user){
+    return ctx.redirect('/profile')
+  }
+
+  await next()
+})
+
+
 
 //ROUTER
 const router = new Router()
-
-router.get('/', async (ctx)=>{
-  await ctx.render('home')
-})
 
 
 router.get('/register', async (ctx)=>{
@@ -143,9 +154,6 @@ router.post('/login', async (ctx)=>{
 
 
 router.get('/profile', async (ctx)=>{
-  if(!ctx.session.user){
-    throw 'You are not authorized to see this page'
-  }
 
   const {first,last,email,age,city} = ctx.session.user
   await ctx.render('profile', {
@@ -155,9 +163,6 @@ router.get('/profile', async (ctx)=>{
 
 
 router.get('/edit', async (ctx)=>{
-  if(!ctx.session.user){
-    throw 'You are not authorized to see this page'
-  }
 
   const {first,last,email,age,city} = ctx.session.user
   await ctx.render('editUser', {
@@ -189,9 +194,6 @@ router.post('/edit', async (ctx)=>{
 
 
 router.get('/delete', async (ctx)=>{
-  if(!ctx.session.user){
-    throw 'You are not authorized to see this page'
-  }
 
   await ctx.render('deleteUser', {
     csrfToken: ctx.csrf
