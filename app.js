@@ -87,8 +87,12 @@ const router = new Router()
 
 router.get('/register', async (ctx)=>{
   await ctx.render('register', {
-    csrfToken: ctx.csrf
+    csrfToken: ctx.csrf,
+    errorMessage: ctx.session.errorMessage
   })
+
+  //eventually reset error messages
+  ctx.session.errorMessage = ''
 })
 
 
@@ -121,15 +125,20 @@ router.post('/register', async (ctx)=>{
     ctx.redirect('/profile')
 
   } catch(err){
-    throw 'Error creating new user. Please try again'
+    ctx.session.errorMessage = 'Error creating new user. Please try again'
+    ctx.redirect('/register')
   }
 })
 
 
 router.get('/login', async (ctx)=>{
   await ctx.render('login', {
-    csrfToken: ctx.csrf
+    csrfToken: ctx.csrf,
+    errorMessage: ctx.session.errorMessage
   })
+
+  //eventually reset error messages
+  ctx.session.errorMessage = ''
 })
 
 
@@ -148,7 +157,8 @@ router.post('/login', async (ctx)=>{
     ctx.redirect('/profile')
 
   } catch(err){
-    throw err
+    ctx.session.errorMessage = err
+    ctx.redirect('/login')
   }
 })
 
@@ -157,8 +167,12 @@ router.get('/profile', async (ctx)=>{
 
   const {first,last,email,age,city} = ctx.session.user
   await ctx.render('profile', {
-    first, last, email, age, city
+    first, last, email, age, city,
+    errorMessage: ctx.session.errorMessage
   })
+
+  //eventually reset error messages
+  ctx.session.errorMessage = ''
 })
 
 
@@ -209,14 +223,21 @@ router.post('/delete', async (ctx)=>{
     throw 'Password is required for this operation'
   }
 
-  //check if correct password provided
-  const user = await User.authenticate(email, password)
+  try {
 
-  //if no errors happened --> user correctly authenticate so proceed deleting from database
-  await User.remove({email: user.email})
+    //check if correct password provided
+    const user = await User.authenticate(email, password)
 
-  ctx.session.user = null
-  ctx.redirect('/')
+    //if no errors happened --> user correctly authenticate so proceed deleting from database
+    await User.remove({email: user.email})
+
+    ctx.session.user = null
+    ctx.redirect('/')
+
+  } catch(err){
+    ctx.session.errorMessage = err
+    ctx.redirect('/profile')
+  }
 })
 
 

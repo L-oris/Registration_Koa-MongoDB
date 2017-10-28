@@ -1,5 +1,9 @@
 <h1>Login here</h1>
 
+<h5 class="error">
+  <%= errorMessage %>
+</h5>
+
 <form action="/login" method="post">
 
   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
