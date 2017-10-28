@@ -171,6 +171,10 @@ router.post('/edit', async (ctx)=>{
 
   const {first,last,age,city} = ctx.request.body
   const {email} = ctx.session.user
+  if(!(first && last)){
+    throw 'First and Last name are required'
+  }
+
 
   //const newUser = await User.edit({first,last,email,age,city})
   await User.update({email},{
@@ -181,6 +185,36 @@ router.post('/edit', async (ctx)=>{
     first,last,email,age,city
   }
   ctx.redirect('/profile')
+})
+
+
+router.get('/delete', async (ctx)=>{
+  if(!ctx.session.user){
+    throw 'You are not authorized to see this page'
+  }
+
+  await ctx.render('deleteUser', {
+    csrfToken: ctx.csrf
+  })
+})
+
+
+router.post('/delete', async (ctx)=>{
+
+  const {email} = ctx.session.user
+  const {password} = ctx.request.body
+  if(!password){
+    throw 'Password is required for this operation'
+  }
+
+  //check if correct password provided
+  const user = await User.authenticate(email, password)
+
+  //if no errors happened --> user correctly authenticate so proceed deleting from database
+  await User.remove({email: user.email})
+
+  ctx.session.user = null
+  ctx.redirect('/')
 })
 
 

@@ -1,17 +1,17 @@
 <h2>Modify your credentials here!</h2>
 
-<form action="" method="post">
+<form action="/edit" method="post">
 
   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
 
   <div class="field">
     <label for="field--first">First</label>
-    <input type="text" name="first" value="<%= first %>" id="field--first">
+    <input required type="text" name="first" value="<%= first %>" id="field--first">
   </div>
 
   <div class="field">
     <label for="field--last">Last</label>
-    <input type="text" name="last" value="<%= last %>" id="field--last">
+    <input required type="text" name="last" value="<%= last %>" id="field--last">
   </div>
 
   <div class="field">

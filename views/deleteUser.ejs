@@ -1,0 +1,15 @@
+<h2>Write your credentials here in order to remove!</h2>
+
+
+<form action="/delete" method="post">
+
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+  <div class="field">
+    <label for="field--password">Password</label>
+    <input required type="password" name="password" id="field--password">
+  </div>
+
+  <button type="submit">Delete</button>
+
+</form>

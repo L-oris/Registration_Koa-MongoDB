@@ -75,35 +75,6 @@ UserSchema.statics.authenticate = async function(email,password){
 }
 
 
-// UserSchema.statics.edit = async function({first,last,email,age,city}){
-//
-//   const currentUser = await User.findOne({email})
-//
-//   if(!currentUser){
-//     throw `User not found`
-//   }
-//
-//   currentUser.set({
-//     first,last,age,city
-//   })
-//
-//   console.log(`now current user --> `);
-//   console.dir(currentUser);
-//
-//   const updatedUser = await currentUser.save()
-//
-//   console.log(`now updatedUser`);
-//   console.dir(updatedUser);
-//
-//   return {
-//     first: updatedUser.first,
-//     last: updatedUser.last,
-//     email: updatedUser.email,
-//     age: updatedUser.age,
-//     city: updatedUser.city
-//   }
-// }
-
 //create a User model
 const User = mongoose.model('User', UserSchema)
 
